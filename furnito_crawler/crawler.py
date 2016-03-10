@@ -1,8 +1,9 @@
 from __init__ import *
 
 class Crawler:
-    def __init__(self, depth):
+    def __init__(self):
         self.base_url = config.base_url
+        self.depth = config.depth
         self.furnitures = []
 
     def get_categories(self):
@@ -76,27 +77,33 @@ class Crawler:
         tree = html.fromstring(review_page.text)
         #extract all reviews, first get number of review pages
         page_num = tree.xpath('//a[@class="firstChild"][last()]/text()')[0]
-        if page_num = 1:
-            extract_reviews(reviewpage_url)
+        if page_num == 1:
+            self.extract_reviews(reviewpage_url)
         else:
-            for page in range(1, int(page_num) + 1):
-                extract_reviews(reviewpage_url, multiple_page = True)
+            self.extract_reviews(reviewpage_url, multi_page = True, max_page = int(page_num))
 
-    def extract_reviews(self, url, multi_page = False):
+    def extract_reviews(self, url, multi_page = False, max_page = None):
         '''
         @usage: get reviews from current url
         @arg: tree, instance of html page
         @arg: multi_page, indicate there are pages of reviews, default false
         @return list of review in current page
         '''
+        #get page
+        review_page = requests.get(url)
+        tree = html.fromstring(review_page.text)
+        #init list to store reviews
+        #crawl first page reviews
+        reviews = tree.xpath('//div[starts-with(@id, "reviewText")]/p/text()')
+        reviews = com.clean_reviews(reviews)
+        next_review_page = None
         if multi_page:
             #multiple page situation
             pass
-        else:
-            #single page situation
-            pass
+        return reviews, next_review_page
+            
 
-crawler = Crawler(0)
+crawler = Crawler()
 test_url = "http://www.overstock.com/Home-Garden/TRIBECCA-HOME-Uptown-Modern-Sofa/3911915/product.html?refccid=L5DPRMJPPRDYV42KNMXUXX4GZE&searchidx=0"
 print crawler.get_reviews(test_url)
 
