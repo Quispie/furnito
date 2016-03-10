@@ -36,6 +36,7 @@ class Crawler:
         '''
         @usage: get data from one furniture base on given url
         @arg: url or current furniture`
+        @return: list of furniture name, furniture price, description
         '''
         furniture_page = requests.get(url)
         tree = html.fromstring(furniture_page.text)
@@ -60,11 +61,43 @@ class Crawler:
          
         return [name, price, description]
 
-    def get reviews(self, url):
-                
+    def get_reviews(self, url):
+        '''
+        @usage: get reviews from one furniture given url
+        @arg: url of current furniture
+        @return: list of reviews for a certain furniture
+        '''
+        #now have url from furniture page, extract url of all reviews of current furniture
+        furniture_page = requests.get(url)
+        tree = html.fromstring(furniture_page.text)
+        #extract url of all reviews
+        reviewpage_url = tree.xpath('//span[@class="overall-msg"]/a/@href')[0]
+        review_page = requests.get(reviewpage_url)
+        tree = html.fromstring(review_page.text)
+        #extract all reviews, first get number of review pages
+        page_num = tree.xpath('//a[@class="firstChild"][last()]/text()')[0]
+        if page_num = 1:
+            extract_reviews(reviewpage_url)
+        else:
+            for page in range(1, int(page_num) + 1):
+                extract_reviews(reviewpage_url, multiple_page = True)
+
+    def extract_reviews(self, url, multi_page = False):
+        '''
+        @usage: get reviews from current url
+        @arg: tree, instance of html page
+        @arg: multi_page, indicate there are pages of reviews, default false
+        @return list of review in current page
+        '''
+        if multi_page:
+            #multiple page situation
+            pass
+        else:
+            #single page situation
+            pass
 
 crawler = Crawler(0)
 test_url = "http://www.overstock.com/Home-Garden/TRIBECCA-HOME-Uptown-Modern-Sofa/3911915/product.html?refccid=L5DPRMJPPRDYV42KNMXUXX4GZE&searchidx=0"
-print crawler.get_furniture(test_url)
+print crawler.get_reviews(test_url)
 
 
