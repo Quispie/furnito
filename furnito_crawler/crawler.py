@@ -1,36 +1,23 @@
 from __init__ import *
+from furniture import Furniture
 
 class Crawler:
     def __init__(self):
         self.base_url = config.base_url
         self.depth = config.depth
-        self.furnitures = []
-
-    def get_categories(self):
-        '''
-        @usage: get categories of furnitures
-        @return: categories of furnitures
-        '''
-        #init category
-        categories = {}
-
-        try:
-            html = urlopen(self.base_url)
-        except HTTPError as e:
-            log.error_log("base_url unreachable")
-        #load page into bs_obj
-        bs_obj = bs(html.read(), "lxml")
-        #find categories
-        try:
-            nested_lists = bs_obj.findAll("i",{"class": re.compile("expand-open-close.*")})
-        except AttributeError as e:
-            log.error_log("can not find top level categories")
-        if len(nested_lists) > 0:
-            for nested_list in nested_lists: 
-                category = nested_list.find_next("a")
-                categories[category.text] = com.remove_enter(category['href'])
     
-        return categories
+    def get_result(self, url):
+        '''
+        @usage: construct a furniture instance and write into local storage
+        @arg: url, current furniture url want to crawl
+        '''
+        name, price, details = self.get_furniture(url)
+        reviews = self.get_reviews(url)
+        furniture = Furniture(name, price, details, reviews)
+        #maybe write to local storage
+        #write_result() to be defined
+        print furniture
+
             
 
     def get_furniture(self, url):
@@ -113,6 +100,6 @@ class Crawler:
 
 crawler = Crawler()
 test_url = "http://www.overstock.com/Home-Garden/TRIBECCA-HOME-Uptown-Modern-Sofa/3911915/product.html?refccid=L5DPRMJPPRDYV42KNMXUXX4GZE&searchidx=0"
-crawler.get_reviews(test_url)
+crawler.get_result(test_url)
 
 
