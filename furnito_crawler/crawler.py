@@ -68,6 +68,7 @@ class Crawler:
         @arg: url of current furniture
         @return: list of reviews for a certain furniture
         '''
+        reviews = []
         #now have url from furniture page, extract url of all reviews of current furniture
         furniture_page = requests.get(url)
         tree = html.fromstring(furniture_page.text)
@@ -78,9 +79,10 @@ class Crawler:
         #extract all reviews, first get number of review pages
         page_num = tree.xpath('//a[@class="firstChild"][last()]/text()')[0]
         if page_num == 1:
-            self.extract_reviews(reviewpage_url)
+            reviews = self.extract_reviews(reviewpage_url)
         else:
-            self.extract_reviews(reviewpage_url, multi_page = True, max_page = int(page_num))
+            reviews = self.extract_reviews(reviewpage_url, multi_page = True, max_page = int(page_num))
+        return reviews
 
     def extract_reviews(self, url, multi_page = False, max_page = None):
         '''
@@ -96,8 +98,6 @@ class Crawler:
         #crawl first page reviews
         reviews = tree.xpath('//div[starts-with(@id, "reviewText")]/p/text()')
         reviews = com.clean_reviews(reviews)
-        print reviews
-        print "================================================================"
         if multi_page:
             #multiple page situation
             for page_num in range(2, max_page + 1):
@@ -107,15 +107,12 @@ class Crawler:
                 tree = html.fromstring(review_page.text)
                 current_reviews = tree.xpath('//div[starts-with(@id, "reviewText")]/p/text()')
                 current_reviews = com.clean_reviews(current_reviews)
-                print current_reviews
                 reviews = reviews + current_reviews
-                break
-            
         return reviews
             
 
 crawler = Crawler()
 test_url = "http://www.overstock.com/Home-Garden/TRIBECCA-HOME-Uptown-Modern-Sofa/3911915/product.html?refccid=L5DPRMJPPRDYV42KNMXUXX4GZE&searchidx=0"
-print crawler.get_reviews(test_url)
+crawler.get_reviews(test_url)
 
 
