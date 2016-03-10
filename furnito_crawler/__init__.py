@@ -1,5 +1,7 @@
 import os
 from bs4 import BeautifulSoup as bs
+from lxml import html
+import requests
 from urllib2 import urlopen
 from urllib2 import HTTPError
 import re
