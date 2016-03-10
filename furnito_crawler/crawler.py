@@ -13,7 +13,9 @@ class Crawler:
         '''
         name, price, details = self.get_furniture(url)
         reviews = self.get_reviews(url)
-        furniture = Furniture(name, price, details, reviews)
+        furniture = Furniture(name, price, details, reviews, url)
+        #once crawled current furniture, remove url from url pool incase of crawl twice
+        
         #maybe write to local storage
         #write_result() to be defined
         print furniture
