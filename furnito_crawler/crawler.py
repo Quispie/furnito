@@ -85,7 +85,7 @@ class Crawler:
     def extract_reviews(self, url, multi_page = False, max_page = None):
         '''
         @usage: get reviews from current url
-        @arg: tree, instance of html page
+        @arg: url, url of review page
         @arg: multi_page, indicate there are pages of reviews, default false
         @return list of review in current page
         '''
@@ -96,11 +96,22 @@ class Crawler:
         #crawl first page reviews
         reviews = tree.xpath('//div[starts-with(@id, "reviewText")]/p/text()')
         reviews = com.clean_reviews(reviews)
-        next_review_page = None
+        print reviews
+        print "================================================================"
         if multi_page:
             #multiple page situation
-            pass
-        return reviews, next_review_page
+            for page_num in range(2, max_page + 1):
+                #get new page url
+                url = tree.xpath('//a[@id="pReviewNext"]/@href')[0]
+                review_page = requests.get(url)
+                tree = html.fromstring(review_page.text)
+                current_reviews = tree.xpath('//div[starts-with(@id, "reviewText")]/p/text()')
+                current_reviews = com.clean_reviews(current_reviews)
+                print current_reviews
+                reviews = reviews + current_reviews
+                break
+            
+        return reviews
             
 
 crawler = Crawler()
