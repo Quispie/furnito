@@ -31,3 +31,4 @@ The goal of our web crawler is to access data *quickly*, *efficiently* and as ma
 7. robot module, use to read *Robot.txt* and decide crawl strategy.
 8. log module, use to recode error in order to keep crawler robust.
 
+Use `config.py` to config your personal settings, run `start.py` to start crawl. Library dependency: `lxml` and `requests`.
