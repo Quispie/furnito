@@ -1,5 +1,7 @@
 from url_pool import URL_Pool
 from crawler import Crawler
+import leveldb
+ 
 
 up = URL_Pool()
 crawler = Crawler()

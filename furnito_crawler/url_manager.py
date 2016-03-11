@@ -1,9 +1,8 @@
-from __init__ import *
-
 class URL_Manager:
     def __init__(self):
-        self.base_url = config.base_url
-        self.depth = config.depth
+        #init level db
+        leveldb.DestroyDB('./db')
+        db = leveldb.LevelDB('./db')
 
     def url_add(self):
         '''
