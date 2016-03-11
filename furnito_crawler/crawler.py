@@ -49,7 +49,7 @@ class Crawler:
             temp_str += feature
         description += temp_str
          
-        return [name, price, description]
+        return name, price, description
 
     def get_reviews(self, url):
         '''
