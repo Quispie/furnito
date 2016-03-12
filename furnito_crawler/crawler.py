@@ -11,14 +11,15 @@ class Crawler:
         @usage: construct a furniture instance and write into local storage
         @arg: url, current furniture url want to crawl
         '''
-        name, price, details = self.get_furniture(url)
+        name, price, details, new_urls = self.get_furniture(url)
         reviews = self.get_reviews(url)
         furniture = Furniture(name, price, details, reviews, url)
-        #once crawled current furniture, remove url from url pool incase of crawl twice
-        
+        #once crawled current furniture, remove url from url pool incase of crawl twice 
+        print furniture.name                
         #maybe write to local storage
         #write_result() to be defined
-        print furniture
+        #return new urls, url, remove url from url_pool, add new urls
+        return new_urls, url
 
             
 
@@ -26,7 +27,7 @@ class Crawler:
         '''
         @usage: get data from one furniture base on given url
         @arg: url or current furniture`
-        @return: list of furniture name, furniture price, description
+        @return: list of furniture name, furniture price, description,new_urls to be crawled
         '''
         furniture_page = requests.get(url)
         tree = html.fromstring(furniture_page.text)
@@ -48,8 +49,10 @@ class Crawler:
         for feature in features:
             temp_str += feature
         description += temp_str
+        #extract new urls
+        new_urls = tree.xpath('//div[@id="rrVertRecsLarge"]/div/div/ul/li/a/@href')
          
-        return [name, price, description]
+        return name, price, description, list(set(new_urls))
 
     def get_reviews(self, url):
         '''
@@ -66,7 +69,10 @@ class Crawler:
         review_page = requests.get(reviewpage_url)
         tree = html.fromstring(review_page.text)
         #extract all reviews, first get number of review pages
-        page_num = tree.xpath('//a[@class="firstChild"][last()]/text()')[0]
+        try:
+            page_num = tree.xpath('//a[@class="firstChild"][last()]/text()')[0]
+        except IndexError as e:
+            page_num = 1
         if page_num == 1:
             reviews = self.extract_reviews(reviewpage_url)
         else:
@@ -100,8 +106,5 @@ class Crawler:
         return reviews
             
 
-crawler = Crawler()
-test_url = "http://www.overstock.com/Home-Garden/TRIBECCA-HOME-Uptown-Modern-Sofa/3911915/product.html?refccid=L5DPRMJPPRDYV42KNMXUXX4GZE&searchidx=0"
-crawler.get_result(test_url)
 
 
