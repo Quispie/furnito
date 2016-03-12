@@ -1,5 +1,5 @@
 ##start crawl page
-base_url = "http://www.overstock.com/Home-Garden/Furniture/32/dept.html?TID=TN:Furn:Furn"
+base_url = "http://www.overstock.com/Home-Garden/INSPIRE-Q-Catherine-Moroccan-Pattern-Fabric-Parsons-Dining-Chair-Set-of-2/10155882/product.html?refccid=AKVTVBRWCTPL5NKDTEL65C4OC4&searchidx=4"
 #crawl depth
 depth = 0
 #file storage path

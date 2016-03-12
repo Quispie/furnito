@@ -1,12 +1,14 @@
 from url_pool import URL_Pool
+from url_manager import URL_Manager
 from crawler import Crawler
-import leveldb
- 
+import config
 
-up = URL_Pool()
+#init
+processed = []
+processing = []
+um = URL_Manager(processed, processing)
 crawler = Crawler()
-
-alive_urls = up.get_alive_urls()
-#start crawl
-for alive_url in alive_urls:
-    crawler.get_result(alive_url)
+#add start url into um
+processing = um.url_add(config.base_url)
+print processing
+new_urls, crawled_url = crawler.get_result(config.base_url)
