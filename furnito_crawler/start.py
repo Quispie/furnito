@@ -2,6 +2,7 @@ from url_pool import URL_Pool
 from url_manager import URL_Manager
 from crawler import Crawler
 import config
+import time
 
 #init
 processed = []
@@ -21,3 +22,4 @@ while len(processing) > 0:
     processed = um.url_history(crawled_url)
     print "%d urls need to crawl" % len(processing)
     print "%d urls has crawled" % len(processed)
+    time.sleep(config.sleep_time)

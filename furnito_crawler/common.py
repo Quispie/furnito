@@ -16,7 +16,8 @@ class Common:
         @arg: list of feature
         @return: furniture feature list
         ''' 
-        feature_list = [x.strip(' ').replace(" ", "").replace("\n","") for x in feature_list]
+        feature_list = [x.strip(' ').replace("\n","") for x in feature_list]
+        feature_list = [' '.join(x.split()) for x in feature_list]
         return feature_list
 
     def clean_reviews(self, review_list):
@@ -26,4 +27,5 @@ class Common:
         @return: cleaned review list
         '''
         review_list = [x.strip(' ').replace("\n","") for x in review_list]
+        review_list = [' '.join(x.split()) for x in review_list]
         return review_list
