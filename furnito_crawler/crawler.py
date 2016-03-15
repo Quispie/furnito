@@ -11,7 +11,8 @@ class Crawler:
         @usage: construct a furniture instance and write into local storage
         @arg: url, current furniture url want to crawl
         '''
-        name, price, details, new_urls = self.get_furniture(url)
+        name, price, details, new_urls, img_url = self.get_furniture(url)
+        name = com.clean_filename(name)
         reviews = self.get_reviews(url)
         furniture = Furniture(name, price, details, reviews, url, img_url)
         #use furniture detail to build search engine
