@@ -13,10 +13,10 @@ class Crawler:
         '''
         name, price, details, new_urls = self.get_furniture(url)
         reviews = self.get_reviews(url)
-        furniture = Furniture(name, price, details, reviews, url)
+        furniture = Furniture(name, price, details, reviews, url, img_url)
         #use furniture detail to build search engine
         jm.file_writer(furniture.details, furniture.name)
-        json_content = {"name": furniture.name, "price": furniture.price, "descrpition": furniture.details, "reviews": furniture.reviews, "link": furniture.link}
+        json_content = {"name": furniture.name, "price": furniture.price, "descrpition": furniture.details, "reviews": furniture.reviews, "link": furniture.link, "img_url": img_url}
         jm.json_writer(json_content, furniture.name)
         #use other information, eg name, price, reviews, url to build website     
         #return new urls, url, remove url from url_pool, add new urls
@@ -52,8 +52,9 @@ class Crawler:
         description += temp_str
         #extract new urls
         new_urls = tree.xpath('//div[@id="rrVertRecsLarge"]/div/div/ul/li/a/@href')
-         
-        return name, price, description, list(set(new_urls))
+        #extract img url
+        img_url = tree.xpath('//img[@itemprop="image"]/@src') 
+        return name, price, description, list(set(new_urls)), img_url
 
     def get_reviews(self, url):
         '''
