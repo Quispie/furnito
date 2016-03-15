@@ -11,7 +11,6 @@ from log import Log
 from common import Common
 #import json_manager
 from json_manager import Json_Manager
-import leveldb
 
 log = Log()
 com = Common()

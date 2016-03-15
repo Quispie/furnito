@@ -15,7 +15,9 @@ class Crawler:
         reviews = self.get_reviews(url)
         furniture = Furniture(name, price, details, reviews, url)
         #use furniture detail to build search engine
-        jm.file_writer(furniture.details, furniture.name) 
+        jm.file_writer(furniture.details, furniture.name)
+        json_content = {"name": furniture.name, "price": furniture.price, "descrpition": furniture.details, "reviews": furniture.reviews, "link": furniture.link}
+        jm.json_writer(json_content, furniture.name)
         #use other information, eg name, price, reviews, url to build website     
         #return new urls, url, remove url from url_pool, add new urls
         return new_urls, url
