@@ -3,8 +3,8 @@ base_url = "http://www.overstock.com/Home-Garden/INSPIRE-Q-Catherine-Moroccan-Pa
 #crawl depth
 depth = 0
 #file storage path
-storage_path = "/home/wb/Documents/furnitures/"
+storage_path = "/home/boyang/Documents/furnitures/"
 #crawler sleep time
-sleep_time = 2
+sleep_time = 1
 #enable multi threading
 multi_thread = False
