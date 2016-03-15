@@ -14,10 +14,9 @@ class Crawler:
         name, price, details, new_urls = self.get_furniture(url)
         reviews = self.get_reviews(url)
         furniture = Furniture(name, price, details, reviews, url)
-        #once crawled current furniture, remove url from url pool incase of crawl twice 
-        print furniture.name                
-        #maybe write to local storage
-        #write_result() to be defined
+        #use furniture detail to build search engine
+        jm.file_writer(furniture.details, furniture.name) 
+        #use other information, eg name, price, reviews, url to build website     
         #return new urls, url, remove url from url_pool, add new urls
         return new_urls, url
 
