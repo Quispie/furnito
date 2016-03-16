@@ -6,7 +6,7 @@
 + [Business](#business)
 + [Inrerface](#interface)
 + [Crawler](#crawler)
-+ [Pre-process]
++ [Tokenize]
 + [Indexing]
 + [Ranking]
 + [Evaluation]
@@ -32,3 +32,31 @@ The goal of our web crawler is to access data *quickly*, *efficiently* and as ma
 8. log module, use to recode error in order to keep crawler robust.
 
 Use `config.py` to config your personal settings, run `start.py` to start crawl. Library dependency: `lxml` and `requests`.
+
+<h2 id='tokenize'>Tokenize</h2>
+
+<h2 id='indexing'>Indexing</h2>
+
+The general introduction of how to build an *Inverted Index* can be found [here](http://nlp.stanford.edu/IR-book/information-retrieval-book.html). In **Furnito**, we implemented an simple *inverted index* which contains two parts: first part is *dict* and the second part is a *posting list*. Below I'd like to introduce these two parts separately.
+
+**Dictionary** is a part allow query to quickly access where is the current document storage, this part need to be store in memory. For most cases, **Dictionary** need to be store in *hashtable*, in python, we use *dict*. The data structure of our Dictionary looks like this:
+
+| index | term   |
+| ----- | ------ |
+| 0     | aero   |
+| 1     | bed    |
+| ...   | ...    |
+| n     | yellow |
+
+As shown in table, we gave each term an *index*, and different terms a sorted alphabetically. In order to avoid memory overload, we done this task by the following steps:
+
+1. collect `term`,  `doc_name` from 1 furniture document, write to temp file.
+2. collect the same fileds from the second document and pair-wise merge two list of terms.
+3. loop through all other furniture documents and do the same thing.
+4. use `defaultdict` of python to reduce data according to term, get result like this: `{term: [doc1, doc3, doc7]}`, where term is the sorted term, list of doc indicates in which documents the current term appears.
+5. Construct **Dictionary** by adding a int index, store in memory.
+6. Construct **Pooling List** by replace all terms by index defined before, export to local storage.
+
+Finall Inverted Index looks like this:
+
+![posting-list](img/posting_list.png)
