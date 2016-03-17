@@ -48,7 +48,7 @@ class Invert_Index:
         '''
         #init a data frame, rows are doc1, doc2..docn, columns are term1 term2...term m
         files = self.fr.load_file_names()
-        df = pd.DataFrame(index = files, columns = self.term_list)
+        df = pd.DataFrame(index = files, columns = range(0, self.term_num))
         df = df.fillna(0)
         for current_file in files:
             content = self.fr.read_file(current_file)
@@ -56,7 +56,7 @@ class Invert_Index:
             for term in content.split():
                 #set current to 1
                 df.xs(current_file, copy = False)[term] = 1
-        df.to_csv(self.csv_path, sep = '\t', cols = self.term_list)
+        df.to_csv(self.csv_path, sep = ',')
          
 
     def clean(self, content):
