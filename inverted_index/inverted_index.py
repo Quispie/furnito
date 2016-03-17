@@ -54,6 +54,7 @@ class Inverted_Index:
         [dicts.append(x) for x in invert_index] 
         for value in range(0, len(dicts)):
             hash_dict[value] = dicts[value]
+            # TODO: remove duplicates(?)
             invert_index[value] = invert_index.pop(dicts[value])
         print hash_dict
         self.fw.write_posting_list(invert_index)
