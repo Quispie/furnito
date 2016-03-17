@@ -1,0 +1,32 @@
+from file_reader import File_Reader
+from file_writer import File_Writer
+import string
+import config
+import ast
+from collections import OrderedDict, defaultdict
+import csv
+
+class Invert_Index:
+    def __init__(self):
+        self.fr = File_Reader()
+        self.fw = File_Writer()
+        self.temp = config.temp_path
+    
+    def build_invert_index(self):
+        '''
+        @usage: build dictionary of invert index, store in memory
+        '''
+        term_list = []
+        files = self.fr.load_file_names()
+        f = open(self.temp, 'w')
+        for current_file in files:
+            content = self.fr.read_file(current_file)
+            content = self.clean(content)
+            for term in content.split():
+                f.write(term + ',' + file_name + "\n")
+        f.close()
+
+    def clean(self, content):
+            
+ii = Invert_Index()
+ii.build_invert_index()
