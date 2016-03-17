@@ -46,6 +46,7 @@ class Invert_Index:
         '''
         @usage: build posting list of inverted index, store in csv
         '''
+        hash_dict = self.build_dictionary()
         #init a data frame, rows are doc1, doc2..docn, columns are term1 term2...term m
         files = self.fr.load_file_names()
         df = pd.DataFrame(index = files, columns = range(0, self.term_num))
@@ -54,8 +55,10 @@ class Invert_Index:
             content = self.fr.read_file(current_file)
             content = self.clean(content)
             for term in content.split():
+                #get term_id by term
+                term_id = hash_dict.keys()[hash_dict.values().index(term)]
                 #set current to 1
-                df.xs(current_file, copy = False)[term] = 1
+                df.xs(current_file, copy = False)[term_id] = 1
         df.to_csv(self.csv_path, sep = ',')
          
 
