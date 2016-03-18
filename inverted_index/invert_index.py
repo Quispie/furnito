@@ -40,13 +40,13 @@ class Invert_Index:
         for term in self.term_list:
             hash_dict[integer] = term
             integer += 1
-        return hash_dict
+        return hash_dict, self.term_num
     
     def build_posting_list(self):
         '''
         @usage: build posting list of inverted index, store in csv
         '''
-        hash_dict = self.build_dictionary()
+        hash_dict,tl = self.build_dictionary()
         #init a data frame, rows are doc1, doc2..docn, columns are term1 term2...term m
         files = self.fr.load_file_names()
         df = pd.DataFrame(index = files, columns = range(0, self.term_num))
@@ -77,5 +77,4 @@ class Invert_Index:
         return content
             
 ii = Invert_Index()
-ii.build_dictionary()
 ii.build_posting_list()
