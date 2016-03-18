@@ -16,7 +16,7 @@
 
 <h2 id='business'>Business</h2>
 Business process model 
-![BPMN model](https://github.com/Informationretrieval2016/furnito/blob/master/img/Schermafbeelding%202016-03-18%20om%2011.35.29.png"BPMN model")
+![BPMN model](https://github.com/Informationretrieval2016/furnito/blob/master/img/Schermafbeelding%202016-03-18%20om%2011.35.29.png "BPMN model")
 
 <h2 id='interface'>Interface</h2>
 
