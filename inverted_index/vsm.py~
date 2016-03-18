@@ -7,7 +7,7 @@ import config
 class Vector_Space:
     def __init__(self):
         self.ii = Invert_Index()
-        self.dicts, self.term_lengthi, self.doc_num = self.ii.build_dictionary()
+        self.dicts, self.term_length = self.ii.build_dictionary()
         self.pl_path = config.posting_list_path
 
     def build_query_vector(self, query_list):
@@ -58,9 +58,6 @@ class Vector_Space:
         '''
         score_dict = {}
         for df in pd.read_csv(self.pl_path, sep = ',', header = None, skiprows = 1, chunksize = 1):
-            doc_vector = df.ix[:, df.columns != 0]
-            doc_vector = np.array(map(list, doc_vector.values))
-            #add term of idf = log((# of documents + 1)/ DF)
             
 
 vs = Vector_Space()

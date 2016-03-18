@@ -40,13 +40,13 @@ class Invert_Index:
         for term in self.term_list:
             hash_dict[integer] = term
             integer += 1
-        return hash_dict, self.term_num
+        return hash_dict, self.term_num, self.doc_num
     
     def build_posting_list(self):
         '''
         @usage: build posting list of inverted index, store in csv
         '''
-        hash_dict,tl = self.build_dictionary()
+        hash_dict,tl,dn = self.build_dictionary()
         #init a data frame, rows are doc1, doc2..docn, columns are term1 term2...term m
         files = self.fr.load_file_names()
         df = pd.DataFrame(index = files, columns = range(0, self.term_num))
@@ -57,8 +57,16 @@ class Invert_Index:
             for term in content.split():
                 #get term_id by term
                 term_id = hash_dict.keys()[hash_dict.values().index(term)]
-                #set current to 1
-                df.xs(current_file, copy = False)[term_id] = 1
+                #add current posting list by 1
+                df.xs(current_file, copy = False)[term_id] += 1
+        #insert a line into matrix indicate document frequency
+        document_frequency = []
+        for i in range(0, self.term_num):
+            #if current list >=1 means term appear in the doc
+            temp_df = list(df.ix[:,i] >= 1)
+            document_frequency.append(sum(temp_df))
+        #write to matrix           
+        df = pd.DataFrame(np.array([document_frequency]), columns = range(0, self.term_num)).append(df)
         df.to_csv(self.csv_path, sep = ',')
          
 
@@ -75,6 +83,6 @@ class Invert_Index:
         content = ' '.join(content.split())
 
         return content
-            
+
 ii = Invert_Index()
 ii.build_posting_list()
