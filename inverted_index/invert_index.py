@@ -83,6 +83,3 @@ class Invert_Index:
         content = ' '.join(content.split())
 
         return content
-
-ii = Invert_Index()
-ii.build_posting_list()

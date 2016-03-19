@@ -7,7 +7,7 @@ import config
 class Vector_Space:
     def __init__(self):
         self.ii = Invert_Index()
-        self.dicts, self.term_lengthi, self.doc_num = self.ii.build_dictionary()
+        self.dicts, self.term_length, self.doc_num = self.ii.build_dictionary()
         self.pl_path = config.posting_list_path
 
     def build_query_vector(self, query_list):
@@ -41,7 +41,7 @@ class Vector_Space:
         '''
         #dot-product with relevant in the posting list store in dict : {doc: score}
         score_dict = {}
-        for df in pd.read_csv(self.pl_path, sep = ',', header = None, skiprows = 1, chunksize = 1):
+        for df in pd.read_csv(self.pl_path, sep = ',', header = None, skiprows = 2, chunksize = 1):
             doc_vector = df.ix[:, df.columns != 0]
             #transform doc_vector and query_vector to list
             doc_vector = np.array(map(list, doc_vector.values))
@@ -57,12 +57,36 @@ class Vector_Space:
         @return: score
         '''
         score_dict = {}
+        document_frequency = []
+        doc_vector = []
+        idf = None
+        #read df, after skip 1row, the first row should be document frequency, other rows is term frequency
+        is_document_frequency = True
         for df in pd.read_csv(self.pl_path, sep = ',', header = None, skiprows = 1, chunksize = 1):
-            doc_vector = df.ix[:, df.columns != 0]
-            doc_vector = np.array(map(list, doc_vector.values))
-            #add term of idf = log((# of documents + 1)/ DF)
-            
+            if is_document_frequency:
+                document_frequency = df.ix[:,df.columns != 0]
+                document_frequency = np.array(map(list, document_frequency.values))
+                #compute idf term
+                idf = self.idf(document_frequency)
+                is_document_frequency = False
+            else:
+                doc_vector = df.ix[:, df.columns != 0]
+                doc_vector = np.array(map(list, doc_vector.values))
+                #first use doc_vector element-wise multiply idf
+                doc_vector = doc_vector * idf
+                score = np.sum(query_vector * doc_vector)
+                score_dict[df.iloc[0][0]] = score
+        print score_dict
+
+    def idf(self, document_frequency):
+        '''
+        @usage: compute inverse document frequency
+        @arg document_frequency: frequency of document
+        @return score of idf
+        '''
+        idf = np.log2(float(self.doc_num + 1)/document_frequency)
+        return idf
 
 vs = Vector_Space()
-query_vector = vs.build_query_vector(['chair'])
-vs.simple_vector_space(query_vector)
+query_vector = vs.build_query_vector(['a', 'chair'])
+vs.tfidf_vector_space(query_vector)
