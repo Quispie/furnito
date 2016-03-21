@@ -43,7 +43,7 @@ class VSM:
         term_location = {}
         for term in term_id:
             term_location[term] = self.pl[str(term)]
-        return term_location, term_id
+        return term_location
 
     def build_query_vector(self, term_id):
         '''
@@ -53,7 +53,7 @@ class VSM:
         '''
         #build query vector
         #init a pandas data frame
-        query_vector = pd.DataFrame(index = [1], columns = range(0, len(self.hash_dict)-1))
+        query_vector = pd.DataFrame(index = [1], columns = range(0, len(self.hash_dict)))
         query_vector = query_vector.fillna(0)
         for term in term_id:
             query_vector.xs(1, copy = False)[term_id] = 1
@@ -82,13 +82,25 @@ class VSM:
                 df.xs(current_doc, copy = False)[term_id] += 1
         #insert a line into matrix indicate document frequency
         document_frequency = []
-        for i in range(0, len(self.hash_dict)-1):
+        for i in range(0, len(self.hash_dict)):
             #if current term >=1 means current term appear in doc
             temp_df = list(df.ix[:,i] >= 1)
             document_frequency.append(sum(temp_df))
         #write to dataframe
-        df = pd.DataFrame(np.array([document_frequency]), columns = range(0, len(self.hash_dict)-1)).append(df)
+        df = pd.DataFrame(np.array([document_frequency]), columns = range(0, len(self.hash_dict))).append(df)
         df.to_csv(self.csv_path, sep = ',')
+        return doc_len
+
+    def simple_vector_space(self, query_vector):
+        '''
+        @usage: compute score of ranking use simple vector space
+        @arg query_vector: vector of user query
+        @return: dict of score
+        '''
+        term_id = self.get_termid(query_vector)
+        term_location = self.get_docs(term_id)
+        print term_location
+
 
     def clean(self, content):
         '''
@@ -111,6 +123,4 @@ class VSM:
 
 
 vsm = VSM()
-term_id = vsm.get_termid(['a', 'chair'])
-term_location, term_id = get_docs = vsm.get_docs(term_id)
-vsm.build_vector_space(term_location, term_id)
+vsm.simple_vector_space(['a', 'chair'])
