@@ -1,4 +1,3 @@
-import string
 from invert_index import Invert_Index
 import config
 import json
@@ -15,7 +14,6 @@ class VSM:
         self.pl_path = config.posting_list_path
         self.pl = {}
         self.hash_dict = self.ii.posting_list()
-        self.csv_path = config.vector_space_path
 
     def get_termid(self, query_list):
         '''
@@ -58,13 +56,18 @@ class VSM:
         for term in term_id:
             query_vector.xs(1, copy = False)[term_id] = 1
         return query_vector
-    def build_vector_space(self, term_location, term_id):
+    def simple_vector_space(self, term_location, term_id):
         '''
         @usage: build simple vector space model
         @arg term_location: dict of term id and term docs, for example {1: [doc1, doc3]}
         @arg term_id: list of term id
+        @return: dict of score
         '''
-        docs = self.fr.load_file_names()
+        #since some term may exist in multiple docs, remove overlap docs
+        docs = []
+        for term in term_id:
+            docs.extend(term_location[term])
+        docs = list(set(docs))
         #init a dataframe, rows are docs, columns are terms
         df = pd.DataFrame(index = docs, columns = range(0, len(self.hash_dict)))
         df = df.fillna(0)
@@ -82,13 +85,11 @@ class VSM:
                 df.xs(current_doc, copy = False)[term_id] += 1
         #insert a line into matrix indicate document frequency
         document_frequency = []
-        for i in range(0, len(self.hash_dict)-1):
+        for i in range(0, len(self.hash_table)-1):
             #if current term >=1 means current term appear in doc
             temp_df = list(df.ix[:,i] >= 1)
             document_frequency.append(sum(temp_df))
-        #write to dataframe
-        df = pd.DataFrame(np.array([document_frequency]), columns = range(0, len(self.hash_dict)-1)).append(df)
-        df.to_csv(self.csv_path, sep = ',')
+        print document_frequency
 
     def clean(self, content):
         '''
@@ -97,12 +98,6 @@ class VSM:
         @return: cleaned content
         '''
         punc = set(string.punctuation)
-        content = ''.join([x for x in content if not x.isdigit()])
-        content = ''.join([x for x in content if x not in punc])
-        content = ''.join([x.lower() for x in content])
-        content = ' '.join(content.split())
-
-        return content
 
 
 
@@ -113,4 +108,4 @@ class VSM:
 vsm = VSM()
 term_id = vsm.get_termid(['a', 'chair'])
 term_location, term_id = get_docs = vsm.get_docs(term_id)
-vsm.build_vector_space(term_location, term_id)
+vsm.simple_vector_space(term_location, term_id)
