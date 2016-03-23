@@ -57,6 +57,7 @@ class VSM:
         query_vector = query_vector.fillna(0)
         for term in term_id:
             query_vector.xs(1, copy = False)[term_id] = 1
+        query_vector = np.array(map(list, query_vector.values))
         return query_vector
     def build_vector_space(self, term_location, term_id):
         '''
@@ -97,9 +98,26 @@ class VSM:
         @arg query_vector: vector of user query
         @return: dict of score
         '''
+        score_dict = {}
         term_id = self.get_termid(query_vector)
         term_location = self.get_docs(term_id)
-        print term_location
+        query_vector = self.build_query_vector(term_id)
+
+        unique_locations = []
+        #get unique documents
+        for k in term_location:
+            unique_locations.extend(term_location[k])
+        unique_locations = list(set(unique_locations))
+        #get these lines from vector space
+        for df in pd.read_csv(self.csv_path, sep = ',', header = None, skiprows = 2, chunksize = 1):
+            current_row = df.ix[:,0].iloc[0]
+            if current_row in unique_locations:
+                #this row contains terms within user query
+                doc_vector = df.ix[:, df.columns != 0]
+                doc_vector = np.array(map(list, doc_vector.values))
+                score = np.sum(query_vector * doc_vector)
+                score_dict[df.iloc[0][0]] = score
+        return score_dict
 
 
     def clean(self, content):
