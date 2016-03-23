@@ -119,6 +119,44 @@ class VSM:
                 score_dict[df.iloc[0][0]] = score
         return score_dict
 
+    def tfidf_vector_space(self, query_vector):
+        '''
+        @usage: compute score according to tf-idf
+        @arg query_vector: list of user query
+        @return: dict of final score
+        '''
+        score_dict = {}
+        term_id = self.get_termid(query_vector)
+        term_location = self.get_docs(term_id)
+        query_vector = self.build_query_vector(term_id)
+
+        unique_locations = []
+        for k in term_location:
+            unique_locations.extend(term_location[k])
+        unique_locations = list(set(unique_locations))
+
+        document_frequency = []
+        idf = None
+        #read df, first row is document frequency, other rows are term frequency
+        is_document_frequency = True
+        for df in pd.read_csv(self.csv_path, sep = ',', header = None, encoding = 'utf-8', skiprows = 1, chunksize = 1):
+            if is_document_frequency:
+                document_frequency = df.ix[:, df.columns != 0]
+                document_frequency = np.array(map(list, document_frequency.values))
+                idf = self.idf(document_frequency)
+                #after compute idf, set is_document_frequency = F
+                is_document_frequency = False
+            else:
+                doc_vector = df.ix[:, df.columns != 0]
+                doc_vector = np.array(map(list, doc_vector.values))
+                #use doc_vector multiply idf element-wise
+                doc_vector = doc_vector * idf
+                #then multiply with query_vector
+                score = np.sum(query_vector * doc_vector)
+                score_dict[df.iloc[0][0]] = score
+        print score_dict
+
+
 
     def clean(self, content):
         '''
@@ -134,11 +172,18 @@ class VSM:
 
         return content
 
-
+    def idf(self, document_frequency):
+        '''
+        @usage: compute inverse document frequency
+        @arg document_frequency: frequency of terms appear in document
+        @return: score of idf
+        '''
+        idf = np.log2(float(len(self.fr.load_file_names()) + 1)/document_frequency)
+        return idf
 
 
 
 
 
 vsm = VSM()
-vsm.simple_vector_space(['a', 'chair'])
+vsm.tfidf_vector_space(['a', 'chair'])
