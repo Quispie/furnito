@@ -8,7 +8,7 @@
 + [Crawler](#crawler)
 + [Tokenize]
 + [Indexing]
-+ [Ranking]
++ [Ranking](#ranking)
 + [Evaluation]
 + [Furture]
 
@@ -62,3 +62,18 @@ As shown in table, we gave each term an *index*, and different terms a sorted al
 Finall Inverted Index looks like this:
 
 ![posting-list](img/posting_list.png)
+
+<h2 id='ranking'>Ranking</h2>
+
+<h2 i3='vsm'>Vector Space Model</h2>
+
+As user send a query, system map query into term id from *dictionary* and then find doc location from posting list. Since we have user query and doc location, it si feasible for us to use a model to give each document a score and make a ranking. The first model we used is *Vector Space Model*.  According to different level of complexity, we implemented 4 vector space models, including *Simple Vector Space Model*, *TF-IDF Vector Space Model*, *Pivot Length Normalized Vector Space Model* and *BM25/Okapi Vector Space Model*. In the following paragraphs, we'll describe why and how we build different models.
+
+`simple_vector_space_model`: We call it 'simple' because it's just finished a dot-product between user query and doc location. Since we want to increase the weight of *valuable* terms and reduce the weight of *normal* terms, this model need to be improved. 
+
+`tfidf_vector_space_model`: According to different terms and documents, we built a *vector space*. It contains *document frequency*, *term-frequency* for each term and each document. Generally, it's like a data frame and we stored it into a cvs file. Except just multiply user query vector and document vector, we added the term frequency into the data frame, and compute `idf` score according to the document frequency. Then gave the result score. If we consider different documents may have different length, and it is unfair to rank long documents and short documents, model still need to be improved.
+
+`pln_vector_space_model`: inspired by Sing et al [1], we implemented one of the state-of-art model named *pivot length normalization vector space model*. In this model, query vector and idf part was fixed, add another variable `b` (between 0 and 1) to control the length of each document. The performance of pln model will be evaluated in the latter section.
+
+`bm25_vector_space`:  Model *bm 25* was one we learned from another paper from Robertson & Walker[2].  This model add a *TF-Transform* term `k` (from 0 to infinity) and `b` (between 0 and 1) to provide precise ranking result. Also, the performance of bm25 will be evaluated in the later section.
+
