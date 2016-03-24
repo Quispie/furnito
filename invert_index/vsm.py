@@ -147,15 +147,55 @@ class VSM:
                 #after compute idf, set is_document_frequency = F
                 is_document_frequency = False
             else:
-                doc_vector = df.ix[:, df.columns != 0]
-                doc_vector = np.array(map(list, doc_vector.values))
-                #use doc_vector multiply idf element-wise
-                doc_vector = doc_vector * idf
-                #then multiply with query_vector
-                score = np.sum(query_vector * doc_vector)
-                score_dict[df.iloc[0][0]] = score
-        print score_dict
+                current_row = df.ix[:,0].iloc[0]
+                if current_row in unique_locations:
+                    doc_vector = df.ix[:, df.columns != 0]
+                    doc_vector = np.array(map(list, doc_vector.values))
+                    #use doc_vector multiply idf element-wise
+                    doc_vector = doc_vector * idf
+                    #then multiply with query_vector
+                    score = np.sum(query_vector * doc_vector)
+                    score_dict[df.iloc[0][0]] = score
+        return score_dict
 
+    def pln_vector_space(self, query_vector):
+        '''
+        @usage: compute pivot-length-normalization vector score
+        @arg query_vector: vector of user query
+        @return: score
+        '''
+        score_dict = {}
+        term_id = self.get_termid(query_vector)
+        term_location = self.get_docs(term_id)
+        query_vector = self.build_query_vector(term_id)
+        #init document length, for normalization doc length
+        doc_length = self.build_vector_space(term_location, term_id)
+        avg_doc_length = sum(doc_length.values())/len(doc_length)
+
+        unique_locations = []
+        for k in term_location:
+            unique_locations.extend(term_location[k])
+        unique_locations = list(set(unique_locations))
+        document_frequency = []
+        idf = None
+        is_document_frequency = True
+        for df in pd.read_csv(self.csv_path, sep = ',', header = None, encoding = 'utf-8', skiprows = 1, chunksize = 1):
+            if is_document_frequency:
+                document_frequency = df.ix[:,df.columns != 0]
+                document_frequency = np.array(map(list, document_frequency.values))
+                idf = self.idf(document_frequency)
+                is_document_frequency = False
+            else:
+                current_row = df.ix[:,0].iloc[0]
+                if current_row in unique_locations:
+                    doc_vector = df.ix[:, df.columns != 0]
+                    doc_vector = np.array(map(list, doc_vector.values))
+                    #compute pivot length normalize score
+                    #first compute document term
+                    doc_term = (np.log10(1 + np.log10(1 + doc_vector)))/(doc_length[current_row]/avg_doc_length)
+                    score = np.sum(query_vector * (doc_term * idf))
+                    score_dict[df.iloc[0][0]] = score
+        print score_dict
 
 
     def clean(self, content):
@@ -186,4 +226,4 @@ class VSM:
 
 
 vsm = VSM()
-vsm.tfidf_vector_space(['a', 'chair'])
+vsm.pln_vector_space(['a', 'chair'])
