@@ -32,7 +32,6 @@ class PBM:
 		return term_id
 
 	def file_count(self):
-		count = 0
 		return sum([len(files) for root,dirs,files in os.walk(self.file_path)]) / 2
 
 	def get_score(self,query_list,total_file):
@@ -41,21 +40,19 @@ class PBM:
 		term_frequency = self.readListFromCSV()
 		for i in term_id:
 			scores.append((total_file - int(term_frequency[i]) + 0.5) / (int(term_frequency[i]) + 0.5))
-		return scores  
- 
+		return scores
 	def get_documents(self):
 		'''
 		#usage: get all file.
 		#arg: the path where files are
-		#return: a list of urls for all files 
-		'''  
-		import os  
-		FileList=[]  
-		FileNames=os.listdir(self.file_path)  
-		if (len(FileNames)>0):  
-			for fn in FileNames:      
-				fullfilename=os.path.join(self.file_path,fn)  
-				FileList.append(fullfilename) 
+		#return: a list of urls for all files
+		'''
+		FileList=[]
+		FileNames=os.listdir(self.file_path)
+		if (len(FileNames)>0):
+			for fn in FileNames:
+				fullfilename=os.path.join(self.file_path,fn)
+				FileList.append(fullfilename)
 		if (len(FileList)>0):
 			FileList.sort()
 		return FileList
