@@ -126,4 +126,4 @@ class PBM2:
 
 
 pbm = PBM2()
-pbm.simple_probability_model(['chair', 'a'])
+pbm.simple_probability_model(['chair', 'a', 'wood'])
