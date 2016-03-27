@@ -214,7 +214,7 @@ class VSM:
         for k in term_location:
             unique_location.extend(term_location[k])
         unique_location = list(set(unique_location))
-        docoument_frequency = []
+        document_frequency = []
         idf = None
         is_document_frequency = True
         for df in pd.read_csv(self.csv_path,sep = ',', header = None, encoding = 'utf-8', skiprows = 1, chunksize = 1):
@@ -233,12 +233,6 @@ class VSM:
                     score = np.sum(query_vector * (doc_term * idf))
                     score_dict[df.iloc[0][0]] = score
         return score_dict
-
-
-
-
-
-
 
     def clean(self, content):
         '''
