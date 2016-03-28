@@ -16,6 +16,7 @@ class VSM:
         self.pl = {}
         self.hash_dict = self.ii.posting_list()
         self.csv_path = config.vector_space_path
+        # self.build_vector_space()
 
     def get_termid(self, query_list):
         '''
@@ -59,7 +60,7 @@ class VSM:
             query_vector.xs(1, copy = False)[term_id] = 1
         query_vector = np.array(map(list, query_vector.values))
         return query_vector
-    def build_vector_space(self, term_location, term_id):
+    def build_vector_space(self):
         '''
         @usage: build simple vector space model
         @arg term_location: dict of term id and term docs, for example {1: [doc1, doc3]}
@@ -69,13 +70,10 @@ class VSM:
         #init a dataframe, rows are docs, columns are terms
         df = pd.DataFrame(index = docs, columns = range(0, len(self.hash_dict)))
         df = df.fillna(0)
-        #init a dictionary to store doc length
-        doc_len = {}
         for current_doc in docs:
             content = self.fr.read_file(current_doc)
             content = self.clean(content)
-            #add into doc_len dict, for furture normalize
-            doc_len[current_doc] = len(content.split())
+            #construct vector space
             for term in content.split():
                 #get term_id by term
                 term_id = self.hash_dict.keys()[self.hash_dict.values().index(term)]
@@ -90,7 +88,6 @@ class VSM:
         #write to dataframe
         df = pd.DataFrame(np.array([document_frequency]), columns = range(0, len(self.hash_dict))).append(df)
         df.to_csv(self.csv_path, sep = ',')
-        return doc_len
 
     def simple_vector_space(self, query_vector):
         '''
@@ -134,7 +131,6 @@ class VSM:
             unique_locations.extend(term_location[k])
             unique_locations = list(set(unique_locations))
         document_frequency = []
-        idf = None
         #read df, first row is document frequency, other rows are term frequency
         df=pd.read_csv(self.csv_path, header = None, encoding="utf-8", skiprows=1)
         document_frequency = df.iloc[[0]]
@@ -163,33 +159,29 @@ class VSM:
         term_location = self.get_docs(term_id)
         query_vector = self.build_query_vector(term_id)
         #init document length, for normalization doc length
-        doc_length = self.build_vector_space(term_location, term_id)
+        doc_length = self.fr.load_doc_length()
         avg_doc_length = sum(doc_length.values())/len(doc_length)
-
+        #get doc locations
         unique_locations = []
         for k in term_location:
             unique_locations.extend(term_location[k])
         unique_locations = list(set(unique_locations))
-        document_frequency = []
-        idf = None
-        is_document_frequency = True
-        for df in pd.read_csv(self.csv_path, sep = ',', header = None, encoding = 'utf-8', skiprows = 1, chunksize = 1):
-            if is_document_frequency:
-                document_frequency = df.ix[:,df.columns != 0]
-                document_frequency = np.array(map(list, document_frequency.values))
-                idf = self.idf(document_frequency)
-                is_document_frequency = False
-            else:
-                current_row = df.ix[:,0].iloc[0]
-                if current_row in unique_locations:
-                    doc_vector = df.ix[:, df.columns != 0]
-                    doc_vector = np.array(map(list, doc_vector.values))
-                    #compute pivot length normalize score
-                    #first compute document term
-                    doc_term = (np.log10(1 + np.log10(1 + doc_vector)))/(doc_length[current_row]/avg_doc_length)
-                    score = np.sum(query_vector * (doc_term * idf))
-                    score_dict[df.iloc[0][0]] = score
+        #read vector space
+        df = pd.read_csv(self.csv_path, header = None, encoding="utf-8", skiprows=1)
+        document_frequency = df.iloc[[0]]
+        document_frequency = document_frequency.ix[:, document_frequency.columns!=0]
+        document_frequency = np.array(map(list, document_frequency.values))
+        idf = self.idf(document_frequency)
+        df = df.loc[df[0].isin(unique_locations)]
+        for index, row in df.iterrows():
+            current_file = row[0]
+            doc_vector = row[1:].tolist()
+            doc_vector = np.array(doc_vector)
+            doc_term = (np.log10(1 + np.log10(1 + doc_vector)))/(doc_length[current_file]/avg_doc_length)
+            score = np.sum(query_vector * (doc_term*idf))
+            score_dict[current_file] = score
         return score_dict
+
 
     def bm25_vector_space(self, user_query):
         '''
@@ -256,4 +248,4 @@ class VSM:
 
 
 vsm = VSM()
-print vsm.tfidf_vector_space(['chair', 'desk'])
+print vsm.pln_vector_space(['chair','desk'])

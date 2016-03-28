@@ -9,6 +9,7 @@ class File_Reader:
         self.path = config.file_path
         self.temp = config.temp_path
         self.pl_path = config.posting_list_path
+        self.doc_len_path = config.doc_length_path
 
     def load_file_names(self):
         '''
@@ -44,3 +45,12 @@ class File_Reader:
         with open(self.pl_path, 'r') as f:
            pl = json.load(f)
         return pl
+
+    def load_doc_length(self):
+        '''
+        @usage: load json of doc length, for document normalization
+        @return: dict of document length
+        '''
+        with open(self.doc_len_path, 'r') as f:
+            dl = json.load(f)
+        return dl
