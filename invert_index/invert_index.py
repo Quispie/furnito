@@ -71,4 +71,3 @@ class Invert_Index:
         content = ' '.join(content.split())
 
         return content
-
