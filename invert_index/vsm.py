@@ -109,14 +109,14 @@ class VSM:
             unique_locations.extend(term_location[k])
         unique_locations = list(set(unique_locations))
         #get these lines from vector space
-        for df in pd.read_csv(self.csv_path, sep = ',', header = None, skiprows = 2, chunksize = 1):
-            current_row = df.ix[:,0].iloc[0]
-            if current_row in unique_locations:
-                #this row contains terms within user query
-                doc_vector = df.ix[:, df.columns != 0]
-                doc_vector = np.array(map(list, doc_vector.values))
-                score = np.sum(query_vector * doc_vector)
-                score_dict[df.iloc[0][0]] = score
+        df = pd.read_csv(self.csv_path, header = None, encoding = "utf-8", skiprows = 2)
+        df = df.loc[df[0].isin(unique_locations)]
+        for index, row in df.iterrows():
+            current_file = row[0]
+            doc_vector = row[1:]
+            doc_vector = np.array(doc_vector, dtype=pd.Series)
+            score = np.sum(query_vector * doc_vector)
+            score_dict[current_file] = score
         return score_dict
 
     def tfidf_vector_space(self, query_vector):
@@ -129,34 +129,28 @@ class VSM:
         term_id = self.get_termid(query_vector)
         term_location = self.get_docs(term_id)
         query_vector = self.build_query_vector(term_id)
-
         unique_locations = []
         for k in term_location:
             unique_locations.extend(term_location[k])
-        unique_locations = list(set(unique_locations))
-
+            unique_locations = list(set(unique_locations))
         document_frequency = []
         idf = None
         #read df, first row is document frequency, other rows are term frequency
-        is_document_frequency = True
-        for df in pd.read_csv(self.csv_path, sep = ',', header = None, encoding = 'utf-8', skiprows = 1, chunksize = 1):
-            if is_document_frequency:
-                document_frequency = df.ix[:, df.columns != 0]
-                document_frequency = np.array(map(list, document_frequency.values))
-                idf = self.idf(document_frequency)
-                #after compute idf, set is_document_frequency = F
-                is_document_frequency = False
-            else:
-                current_row = df.ix[:,0].iloc[0]
-                if current_row in unique_locations:
-                    doc_vector = df.ix[:, df.columns != 0]
-                    doc_vector = np.array(map(list, doc_vector.values))
-                    #use doc_vector multiply idf element-wise
-                    doc_vector = doc_vector * idf
-                    #then multiply with query_vector
-                    score = np.sum(query_vector * doc_vector)
-                    score_dict[df.iloc[0][0]] = score
+        df=pd.read_csv(self.csv_path, header = None, encoding="utf-8", skiprows=1)
+        document_frequency = df.iloc[[0]]
+        document_frequency = document_frequency.ix[:, document_frequency.columns!=0]
+        document_frequency = np.array(map(list, document_frequency.values))
+        idf = self.idf(document_frequency)
+        df=df.loc[df[0].isin(unique_locations)]
+        for index, row in df.iterrows():
+            current_file = row[0]
+            doc_vector = row[1:]
+            doc_vector = np.array(doc_vector, pd.Series)
+            doc_vector = doc_vector * idf
+            score = np.sum(query_vector * doc_vector)
+            score_dict[current_file] = score
         return score_dict
+
 
     def pln_vector_space(self, query_vector):
         '''
@@ -262,4 +256,4 @@ class VSM:
 
 
 vsm = VSM()
-print vsm.bm25_vector_space(['a', 'chair'])
+print vsm.tfidf_vector_space(['chair', 'desk'])

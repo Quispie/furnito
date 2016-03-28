@@ -98,9 +98,6 @@ class PBM2:
                 score_dict[current_row] = float(tf)/doc_length[current_row]
         return score_dict
 
-
-
-
     def clean(self, content):
         '''
         @usage: clean content, remove
