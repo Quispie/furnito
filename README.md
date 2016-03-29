@@ -4,13 +4,13 @@
 
 + [Intro](#intro)
 + [Business](#business)
-+ [Inrerface](#interface)
++ [Interface](#interface)
 + [Crawler](#crawler)
 + [Tokenize]
 + [Indexing](#indexing)
 + [Ranking](#ranking)
 + [Evaluation](#evaluation)
-+ [Furture]
++ [Future]
 
 <h2 id='intro'>Intro</h2>
 
