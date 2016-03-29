@@ -7,9 +7,9 @@
 + [Inrerface](#interface)
 + [Crawler](#crawler)
 + [Tokenize]
-+ [Indexing]
++ [Indexing](#indexing)
 + [Ranking](#ranking)
-+ [Evaluation]
++ [Evaluation](#evaluation)
 + [Furture]
 
 <h2 id='intro'>Intro</h2>
@@ -65,7 +65,7 @@ Finall Inverted Index looks like this:
 
 <h2 id='ranking'>Ranking</h2>
 
-<h2 i3='vsm'>Vector Space Model</h2>
+<h3 id='vsm'>Vector Space Model</h3>
 
 As user send a query, system map query into term id from *dictionary* and then find doc location from posting list. Since we have user query and doc location, it si feasible for us to use a model to give each document a score and make a ranking. The first model we used is *Vector Space Model*.  According to different level of complexity, we implemented 4 vector space models, including *Simple Vector Space Model*, *TF-IDF Vector Space Model*, *Pivot Length Normalized Vector Space Model* and *BM25/Okapi Vector Space Model*. In the following paragraphs, we'll describe why and how we build different models.
 
@@ -77,3 +77,18 @@ As user send a query, system map query into term id from *dictionary* and then f
 
 `bm25_vector_space`:  Model *bm 25* was one we learned from another paper from Robertson & Walker[2].  This model add a *TF-Transform* term `k` (from 0 to infinity) and `b` (between 0 and 1) to provide precise ranking result. Also, the performance of bm25 will be evaluated in the later section.
 
+<h3 id='pbm'>Probabilistic Model</h3>
+
+We also tryied to rank documents by asesss the most likely relevant document according to user query.  Based on probabilistic basis, we implemented 2 models:
+
+`unigram_probability_model`, this is the most simple probabilistic model that use language model to model user query text. Statisticsl language model is a probability distribution over word sequence. 
+
+`query_likely_model`, we use the whole furniture data as a reference language model, and by using *linear-interpolation-smoothing*, get our second model. This model use smoothing method based on reference set to give each unseen term an estimate probability. We'll evaluate the model in the later evaluation section.
+
+<h3 id='l2r'>Learning to Rank</h3>
+
+
+
+<h2 id='evaluation'>Evaluation</h2>
+
+We have over 1000 documents, created 50 user queries. By applying different ranking methods (simple vsm, tfidf vsm, pln vsm, bm25, unigram pbm, query likelihood pbm) into the retrieval system, we extract top 20 documents for each query and each algorithm, formed into a big evaluation set. This method is named *Pooling* method.
